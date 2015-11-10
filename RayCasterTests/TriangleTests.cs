@@ -8,9 +8,12 @@ namespace RayCasterTests
         [Fact]
         public void TriangleInitialize()
         {
-            Vector3 a = new Vector3(0, 1, 0);
-            Vector3 b = new Vector3(-1, 0, 0);
-            Vector3 c = new Vector3(1, 0, 0);
+            Vertex a = new Vertex();
+            a.Position = new Vector3(0, 1, 0);
+            Vertex b = new Vertex();
+            b.Position = new Vector3(-1, 0, 0);
+            Vertex c = new Vertex();
+            c.Position = new Vector3(1, 0, 0);
 
             Triangle t = new Triangle(a,b,c);
 
