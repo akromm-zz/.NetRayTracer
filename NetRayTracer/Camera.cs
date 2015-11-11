@@ -1,6 +1,4 @@
-﻿
-using System;
-/// Copyright (c) 2015 Adam Kromm
+﻿/// Copyright (c) 2015 Adam Kromm
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -18,23 +16,42 @@ using System;
 /// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace NetRayTracer
 {
-    public class Program
+    /// <summary>
+    /// Represents a camera which defines the parameters used for where the scene is rendered from  
+    /// </summary>
+    public class Camera
     {
-        static void Main(string[] args)
-        {
-            if(args.Length < 1)
-            {
-                Console.WriteLine("Usage: NetRayTracer {path to obj file}");
-                return;
-            }
+        /// <summary>
+        /// The position of the camera
+        /// </summary>
+        public Vector3 Position { get; set; }
 
-            ObjData data = ObjData.LoadFile(args[1]);
+        /// <summary>
+        /// The direction the camera is facing
+        /// </summary>
+        public Vector3 Facing { get; set; }
 
-            Scene scene = ObjToSceneConverter.Convert(data);
+        /// <summary>
+        /// Which was is up
+        /// </summary>
+        public Vector3 Up { get; set; }
 
+        /// <summary>
+        /// The field of view for the camera
+        /// </summary>
+        public float FieldOfView { get; set; }
 
-        }
+        public float ViewportWidth { get; set; }
+
+        public float ViewportHeight { get; set; }
     }
 }

@@ -145,37 +145,37 @@ namespace NetRayTracer
         /// <summary>
         /// List of all vertices read from file
         /// </summary>
-        private List<Vector3> _vertices;
+        public List<Vector3> vertices;
 
         /// <summary>
         /// List of all normals read from file
         /// </summary>
-        private List<Vector3> _normals;
+        public List<Vector3> normals;
 
         /// <summary>
         /// List of all texture coordinates read from file
         /// </summary>
-        private List<Vector3> _texCoords;
+        public List<Vector3> texCoords;
 
         /// <summary>
         /// List of all faces/Trianlges read from file
         /// </summary>
-        private List<Triangle> _faces;
+        public List<Triangle> faces;
 
         /// <summary>
         /// List of all materials loaded from file
         /// </summary>
-        private List<Material> _materials;
+        public List<Material> materials;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjData"/> class.
         /// </summary>
         public ObjData()
         {
-            _vertices = new List<Vector3>();
-            _normals = new List<Vector3>();
-            _texCoords = new List<Vector3>();
-            _faces = new List<Triangle>();
+            vertices = new List<Vector3>();
+            normals = new List<Vector3>();
+            texCoords = new List<Vector3>();
+            faces = new List<Triangle>();
         }
 
         /// <summary>
@@ -220,7 +220,7 @@ namespace NetRayTracer
                                 float y = float.Parse(tokens[2]);
                                 float z = float.Parse(tokens[3]);
 
-                                data._vertices.Add(new Vector3(x, y, z));
+                                data.vertices.Add(new Vector3(x, y, z));
                             }
                             break;
                         case "vn": // Vertex Normal
@@ -229,7 +229,7 @@ namespace NetRayTracer
                                 float y = float.Parse(tokens[2]);
                                 float z = float.Parse(tokens[3]);
 
-                                data._normals.Add(new Vector3(x, y, z));
+                                data.normals.Add(new Vector3(x, y, z));
                             }
                             break;
                         case "vt": // Vertex Texture Coord
@@ -241,7 +241,7 @@ namespace NetRayTracer
                                 {
                                     w = float.Parse(tokens[3]);
                                 }
-                                data._texCoords.Add(new Vector3(u, v, w));
+                                data.texCoords.Add(new Vector3(u, v, w));
                             }
                             break;
                         case "f": // Face
@@ -256,7 +256,7 @@ namespace NetRayTracer
                                 t.ObjectName = currentObject;
                                 t.SmoothingGroupName = currentSmoothingGroup;
                                 t.Material = currentMaterial;
-                                data._faces.Add(t);
+                                data.faces.Add(t);
                             }
                             break;
                         case "mtllib":
@@ -289,7 +289,7 @@ namespace NetRayTracer
             // Load all the material files
             foreach (var m in materialFiles)
             {
-                data._materials.AddRange(LoadMaterials(m));
+                data.materials.AddRange(LoadMaterials(m));
             }
 
             return data;

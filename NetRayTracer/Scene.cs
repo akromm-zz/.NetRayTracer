@@ -30,6 +30,32 @@ namespace NetRayTracer
         /// <summary>
         /// List of all triangles in the scene
         /// </summary>
-        private List<Triangle> _triangles;
+        public List<Triangle> Triangles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the height of the scene output in pixels
+        /// </summary>
+        public int Height { get; set; }
+
+        /// <summary>
+        /// Gets or sets the width of the scene output in pixels
+        /// </summary>
+        public int Width { get; set; }
+
+        /// <summary>
+        /// Gets or sets the camera used for rendering
+        /// </summary>
+        public Camera Camera { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Scene"/> class.
+        /// </summary>
+        public Scene(Camera cam, int width, int height)
+        {
+            Triangles = new List<Triangle>();
+            Camera = cam;
+            Width = width;
+            Height = height;
+        }
     }
 }

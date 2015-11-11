@@ -105,5 +105,10 @@ namespace NetRayTracer
         /// This is overriden by the SpecularCoefficientMap
         /// </remarks>
         public float SpecularCoefficient { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of this material
+        /// </summary>
+        public string Name { get; internal set; }
     }
 }
