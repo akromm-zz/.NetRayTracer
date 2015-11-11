@@ -1,57 +1,175 @@
-﻿using System;
+﻿/// Copyright (c) 2015 Adam Kromm
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace raycaster
+namespace NetRayTracer
 {
+    /// <summary>
+    /// Represents the data loaded from a .obj file
+    /// </summary>
     public class ObjData
     {
+        /// <summary>
+        /// Represents a Face in the obj file (we only accept triangles)
+        /// </summary>
         public struct Triangle
         {
+            /// <summary>
+            /// Contains the indices into the vertex, normal, and tex coord lists
+            /// </summary>
             public struct Vertex
             {
-                public int v, n, t;
+                /// <summary>
+                /// Index into the vertex list
+                /// </summary>
+                public int vertex;
+
+                /// <summary>
+                /// Index into the normal list
+                /// </summary>
+                public int normal;
+
+                /// <summary>
+                /// Index into the texture coordinate list
+                /// </summary>
+                public int texCoord;
             }
 
-            public Vertex vert1, vert2, vert3;
+            /// <summary>
+            /// Contains the three vertices that make up the face
+            /// </summary>
+            public Vertex Vert1, Vert2, Vert3;
 
-            // used to specify which object this face is a part of.
-            public string objectName;
+            /// <summary>
+            /// Used to specify which object this face is a part of.
+            /// </summary>
+            public string ObjectName;
 
-            // used to specify which group this face is a part of.
-            public List<string> groupNames;
+            /// <summary>
+            /// Used to specify which group this face is a part of.
+            /// </summary>
+            public List<string> GroupNames;
 
-            // used to specify which smoothing group this face is a part of
-            public string smoothingGroupName;
+            /// <summary>
+            /// Used to specify which smoothing group this face is a part of
+            /// </summary>
+            public string SmoothingGroupName;
 
-            // used to specify which material is being used
-            public string material;
+            /// <summary>
+            /// Used to specify which material is being used
+            /// </summary>
+            public string Material;
         }
 
+        /// <summary>
+        /// Represents a meterial from a .mtl file linked to from a .obj file
+        /// </summary>
         public struct Material
         {
-            public string name;
-            public Vector3 ambient, diffuse, specular;
-            public float specularCoefficient;
-            public float transparency;
-            public string ambientTextureMap;
-            public string diffuseTextureMap;
-            public string specularTetureMap;
-            public string specularCoefficientMap;
-            public string alphaTextureMap;
-            public string bumpMap;
-            public string displacementMap;
+            /// <summary>
+            /// The name of the material
+            /// </summary>
+            public string Name;
+
+            /// <summary>
+            /// The ambient, diffuse, and specular color. xyz = rgb
+            /// </summary>
+            public Vector3 Ambient, Diffuse, Specular;
+
+            /// <summary>
+            /// The specular coefficient for this material
+            /// </summary>
+            public float SpecularCoefficient;
+
+            /// <summary>
+            /// The transparency of the material
+            /// </summary>
+            public float Transparency;
+
+            /// <summary>
+            /// Path to an ambient texture map
+            /// </summary>
+            public string AmbientTextureMap;
+
+            /// <summary>
+            /// Path to a diffuse texture map
+            /// </summary>
+            public string DiffuseTextureMap;
+
+            /// <summary>
+            /// Path to a specular texture map
+            /// </summary>
+            public string SpecularTextureMap;
+
+            /// <summary>
+            /// Path to specular coefficient map
+            /// </summary>
+            public string SpecularCoefficientMap;
+
+            /// <summary>
+            /// Path to alpha texture map
+            /// </summary>
+            public string AlphaTextureMap;
+
+            /// <summary>
+            /// Path to bump map
+            /// </summary>
+            public string BumpMap;
+
+            /// <summary>
+            /// Path to displacement map
+            /// </summary>
+            public string DisplacementMap;
         }
 
+        /// <summary>
+        /// List of all vertices read from file
+        /// </summary>
         private List<Vector3> _vertices;
+
+        /// <summary>
+        /// List of all normals read from file
+        /// </summary>
         private List<Vector3> _normals;
+
+        /// <summary>
+        /// List of all texture coordinates read from file
+        /// </summary>
         private List<Vector3> _texCoords;
+
+        /// <summary>
+        /// List of all faces/Trianlges read from file
+        /// </summary>
         private List<Triangle> _faces;
+
+        /// <summary>
+        /// List of all materials loaded from file
+        /// </summary>
         private List<Material> _materials;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ObjData"/> class.
+        /// </summary>
         public ObjData()
         {
             _vertices = new List<Vector3>();
@@ -74,12 +192,16 @@ namespace raycaster
                 throw new ArgumentException("The path '{0}' does not exist", filepath);
             }
 
+            // List of state variables
             List<string> currentGroups = null;
             string currentObject = string.Empty;
             string currentSmoothingGroup = string.Empty;
             string currentMaterial = string.Empty;
+
+            // List of material files we will need to load
             List<string> materialFiles = null;
 
+            // Load up the file for reading
             using (FileStream stream = File.OpenRead(filepath))
             using (StreamReader reader = new StreamReader(stream))
             {
@@ -130,10 +252,10 @@ namespace raycaster
                                 }
 
                                 Triangle t = ParseFaceData(tokens);
-                                t.groupNames = currentGroups;
-                                t.objectName = currentObject;
-                                t.smoothingGroupName = currentSmoothingGroup;
-                                t.material = currentMaterial;
+                                t.GroupNames = currentGroups;
+                                t.ObjectName = currentObject;
+                                t.SmoothingGroupName = currentSmoothingGroup;
+                                t.Material = currentMaterial;
                                 data._faces.Add(t);
                             }
                             break;
@@ -164,6 +286,7 @@ namespace raycaster
                 }
             }
 
+            // Load all the material files
             foreach (var m in materialFiles)
             {
                 data._materials.AddRange(LoadMaterials(m));
@@ -182,9 +305,9 @@ namespace raycaster
             // tokens[0] will be "f"
             Triangle t = new Triangle();
 
-            t.vert1 = ParseFaceVertex(tokens[1]);
-            t.vert2 = ParseFaceVertex(tokens[2]);
-            t.vert3 = ParseFaceVertex(tokens[3]);
+            t.Vert1 = ParseFaceVertex(tokens[1]);
+            t.Vert2 = ParseFaceVertex(tokens[2]);
+            t.Vert3 = ParseFaceVertex(tokens[3]);
 
             return t;
         }
@@ -199,24 +322,29 @@ namespace raycaster
             Triangle.Vertex vert = new Triangle.Vertex();
             var d = data.Split('/');
 
-            vert.v = int.Parse(d[0]);
+            vert.vertex = int.Parse(d[0]);
             if (data.Length > 1)
             {
                 // Its possible to not specify a texture coord in order to still supply a normal
                 // eg: 1//5 -> Vertex index 1, no tex coord, normal index 5
                 if (d[1] != string.Empty)
                 {
-                    vert.t = int.Parse(d[1]);
+                    vert.texCoord = int.Parse(d[1]);
                 }
             }
             if (data.Length > 2)
             {
-                vert.n = int.Parse(d[2]);
+                vert.normal = int.Parse(d[2]);
             }
 
             return vert;
         }
 
+        /// <summary>
+        /// Loads all the materials in a material file
+        /// </summary>
+        /// <param name="file">The path to the file to load and parse</param>
+        /// <returns>A list of all <see cref="Material"/> defined in the file</returns>
         private static List<Material> LoadMaterials(string file)
         {
             List<Material> materials = new List<Material>();
@@ -228,6 +356,7 @@ namespace raycaster
 
             Material currentMaterial;
 
+            // Load and parse the file
             using (FileStream stream = File.OpenRead(file))
             using (StreamReader reader = new StreamReader(stream))
             {
@@ -241,56 +370,56 @@ namespace raycaster
                         case "newmtl":
                             materials.Add(new Material());
                             currentMaterial = materials.Last();
-                            currentMaterial.name = tokens[1];
+                            currentMaterial.Name = tokens[1];
                             break;
                         case "Ka":
-                            currentMaterial.ambient = new Vector3(
+                            currentMaterial.Ambient = new Vector3(
                                 float.Parse(tokens[1]),
                                 float.Parse(tokens[2]),
                                 float.Parse(tokens[3]));
                             break;
                         case "Kd":
-                            currentMaterial.diffuse = new Vector3(
+                            currentMaterial.Diffuse = new Vector3(
                                 float.Parse(tokens[1]),
                                 float.Parse(tokens[2]),
                                 float.Parse(tokens[3]));
                             break;
                         case "Ks":
-                            currentMaterial.specular = new Vector3(
+                            currentMaterial.Specular = new Vector3(
                                 float.Parse(tokens[1]),
                                 float.Parse(tokens[2]),
                                 float.Parse(tokens[3]));
                             break;
                         case "Ns":
-                            currentMaterial.specularCoefficient = float.Parse(tokens[1]);
+                            currentMaterial.SpecularCoefficient = float.Parse(tokens[1]);
                             break;
                         case "d":
-                            currentMaterial.transparency = 1.0f - float.Parse(tokens[1]);
+                            currentMaterial.Transparency = 1.0f - float.Parse(tokens[1]);
                             break;
                         case "Tr":
-                            currentMaterial.transparency = float.Parse(tokens[1]);
+                            currentMaterial.Transparency = float.Parse(tokens[1]);
                             break;
                         case "map_Ka":
-                            currentMaterial.ambientTextureMap = tokens[1];
+                            currentMaterial.AmbientTextureMap = tokens[1];
                             break;
                         case "map_Kd":
-                            currentMaterial.diffuseTextureMap = tokens[1];
+                            currentMaterial.DiffuseTextureMap = tokens[1];
                             break;
                         case "map_Ks":
-                            currentMaterial.specularTetureMap = tokens[1];
+                            currentMaterial.SpecularTextureMap = tokens[1];
                             break;
                         case "map_Ns":
-                            currentMaterial.specularCoefficientMap = tokens[1];
+                            currentMaterial.SpecularCoefficientMap = tokens[1];
                             break;
                         case "map_d":
-                            currentMaterial.alphaTextureMap = tokens[1];
+                            currentMaterial.AlphaTextureMap = tokens[1];
                             break;
                         case "disp":
-                            currentMaterial.displacementMap = tokens[1];
+                            currentMaterial.DisplacementMap = tokens[1];
                             break;
                         case "map_bump":
                         case "bump":
-                            currentMaterial.bumpMap = tokens[1];
+                            currentMaterial.BumpMap = tokens[1];
                             break;
                     }
                 }

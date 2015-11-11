@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "raycaster", "raycaster\raycaster.csproj", "{CD696C45-F76D-468B-ACF6-855B8076F5AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetRayTracer", "NetRayTracer\NetRayTracer.csproj", "{CD696C45-F76D-468B-ACF6-855B8076F5AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RayCasterTests", "RayCasterTests\RayCasterTests.csproj", "{D61C694C-4C72-41D4-ADE7-022B5ACFD5EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetRayTracerTests", "RayCasterTests\NetRayTracerTests.csproj", "{D61C694C-4C72-41D4-ADE7-022B5ACFD5EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

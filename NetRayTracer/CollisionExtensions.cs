@@ -1,11 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/// Copyright (c) 2015 Adam Kromm
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
 
-namespace raycaster
+namespace NetRayTracer
 {
+    /// <summary>
+    /// Contains extension methods for doing collision detection
+    /// </summary>
     public static class CollisionExtensions
     {
         /// <summary>
@@ -15,7 +31,7 @@ namespace raycaster
 
         /// <summary>
         /// Determine if a ray <paramref name="r"/> intersects with triangle <paramref name="t"/>, and if so
-        /// at what point in time <paramref name="time"/>.
+        /// at what point in time <paramref name="time"/>.  Backfaces are ignored (time is negative number)
         /// </summary>
         /// <param name="r">The ray being cast</param>
         /// <param name="t">The triangle being checked</param>
@@ -24,7 +40,7 @@ namespace raycaster
         public static bool CollidesWith(this Ray r, Triangle t, ref float time)
         {
             // Get the vector from the origin of the array to the first point on the triangle
-            Vector3 op = r.Origin - t.P0;
+            Vector3 op = r.Origin - t.P0.Position;
 
             // Calculate the time to the first point from ray origin
             time = -1;
@@ -36,7 +52,7 @@ namespace raycaster
 
                 // Need to detect if the point is inside of the triangle
                 // ((p1-p0) cross (x-p0)) dot n >= 0
-                Vector3 cross = Vector3.Cross((t.P1 - t.P0), (coord - t.P0));
+                Vector3 cross = Vector3.Cross((t.P1.Position - t.P0.Position), (coord - t.P0.Position));
                 float hit = Vector3.Dot(cross, t.Normal);
 
                 if (hit < 0)
@@ -46,7 +62,7 @@ namespace raycaster
 
                 // Second check
                 // ((p2-p1) cross (x-p1)) dot n >= 0
-                cross = Vector3.Cross((t.P2 - t.P1), (coord - t.P1));
+                cross = Vector3.Cross((t.P2.Position - t.P1.Position), (coord - t.P1.Position));
                 hit = Vector3.Dot(cross, t.Normal);
 
                 if (hit < 0)
@@ -56,7 +72,7 @@ namespace raycaster
 
                 // Third check
                 // ((p0-p2) cross (x-p2)) dot n >= 0
-                cross = Vector3.Cross((t.P0 - t.P2), (coord - t.P2));
+                cross = Vector3.Cross((t.P0.Position - t.P2.Position), (coord - t.P2.Position));
                 hit = Vector3.Dot(cross, t.Normal);
 
                 if (hit < 0)
