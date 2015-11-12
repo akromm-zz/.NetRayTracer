@@ -1,4 +1,7 @@
-﻿/// Copyright (c) 2015 Adam Kromm
+﻿
+using System;
+using System.Drawing;
+/// Copyright (c) 2015 Adam Kromm
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -16,7 +19,6 @@
 /// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
-
 namespace NetRayTracer
 {
     /// <summary>
@@ -33,6 +35,11 @@ namespace NetRayTracer
         /// The normal for the triangle
         /// </summary>
         private Vector3 _normal;
+
+        /// <summary>
+        /// The surface area of the triangle
+        /// </summary>
+        private float _area;
 
         /// <summary>
         /// Gets the first vertex
@@ -87,9 +94,51 @@ namespace NetRayTracer
             _p1 = p1;
             _p2 = p2;
 
-            _normal = Vector3.Cross((_p2.Position - _p1.Position), (_p0.Position - _p1.Position)).Normalized;
+            _normal = Vector3.Cross((_p2.Position - _p1.Position), (_p0.Position - _p1.Position));
+            _area = _normal.Magnitude;
+            _normal = _normal.Normalized;
 
             Material = mat;
+        }
+
+        /// <summary>
+        /// Gets the color of the triangle at the given position
+        /// </summary>
+        /// <param name="closestPosition">The position to get the color at</param>
+        /// <returns>The color at the given position</returns>
+        internal Color GetColor(Vector3 closestPosition)
+        {
+            Color c = Color.White;
+
+            if(Material != null)
+            {
+                // convert to barycentric coordinates for the triangle
+                Vector3 p0p2 = P0.Position - P2.Position;
+                Vector3 p1p2 = P1.Position - P2.Position;
+                Vector3 p1p0 = P1.Position - P0.Position;
+                Vector3 xp0 = closestPosition - P0.Position;
+                Vector3 xp1 = closestPosition - P1.Position;
+                Vector3 xp2 = closestPosition - P2.Position;
+
+                // calculate the weight of the contribution of each vertex to the cooridnates
+                float weight0 = Vector3.Cross(p1p2, xp1).Magnitude / _area;
+                float weight1 = Vector3.Cross(p0p2, xp1).Magnitude / _area;
+                float weight2 = Vector3.Cross(p1p0, xp1).Magnitude / _area;
+
+                // calculate the interpolated coordinate
+                float tu = P0.TexCoord.X * weight0 + P1.TexCoord.X * weight1 + P2.TexCoord.X * weight2;
+                float tv = P0.TexCoord.Y * weight0 + P1.TexCoord.Y * weight1 + P2.TexCoord.Y * weight2;
+
+                // If the texture coordinate is > 1.0f or < 1.0f then wrap it
+                tu %= 1.0f;
+                tv %= 1.0f;
+
+                // TODO: Get the color contributions from all the different material properties
+                Bitmap diffuse = Material.DiffuseMap;
+                c = diffuse.GetPixel((int)(tu * diffuse.Width), (int)(tv * diffuse.Height));
+            }
+
+            return c;
         }
     }
 }

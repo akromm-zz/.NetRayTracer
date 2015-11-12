@@ -35,8 +35,7 @@ namespace NetRayTracer
         public static Scene Convert(ObjData data)
         {
             Scene s = new Scene();
-
-            Dictionary<string, Material> materials = new Dictionary<string, Material>;
+            Dictionary<string, Material> materials = new Dictionary<string, Material>();
             Dictionary<string, Bitmap> bitmaps = new Dictionary<string, Bitmap>();
 
             foreach (var mat in data.materials)

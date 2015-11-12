@@ -1,6 +1,4 @@
-﻿
-using System;
-/// Copyright (c) 2015 Adam Kromm
+﻿/// Copyright (c) 2015 Adam Kromm
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -18,6 +16,11 @@ using System;
 /// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
+
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+
 namespace NetRayTracer
 {
     public class Program
@@ -26,15 +29,21 @@ namespace NetRayTracer
         {
             if(args.Length < 1)
             {
-                Console.WriteLine("Usage: NetRayTracer {path to obj file}");
+                Console.WriteLine("Usage: NetRayTracer {path to config file}");
                 return;
             }
 
-            ObjData data = ObjData.LoadFile(args[1]);
+            Configuration config = Configuration.Load(args[1]);
+
+            ObjData data = ObjData.LoadFile(config.ObjFile);
 
             Scene scene = ObjToSceneConverter.Convert(data);
 
+            Renderer renderer = new Renderer(config, scene);
 
+            Bitmap output = renderer.Render();
+
+            output.Save("output", ImageFormat.Jpeg);
         }
     }
 }

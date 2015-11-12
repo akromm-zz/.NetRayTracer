@@ -17,41 +17,31 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace NetRayTracer
 {
     /// <summary>
-    /// Represents a camera which defines the parameters used for where the scene is rendered from  
+    /// Represents the light in a scene
     /// </summary>
-    public class Camera
+    public class Light
     {
         /// <summary>
-        /// The position of the camera
+        /// Get or sets the diffuse color of the light
         /// </summary>
-        public Vector3 Position { get; set; }
+        Vector3 DiffuseColor { get; set;}
 
         /// <summary>
-        /// The direction the camera is facing
+        /// Gets or sets the specular color of the light
         /// </summary>
-        public Vector3 Facing { get; set; }
+        Vector3 SpecularColor { get; set; }
 
         /// <summary>
-        /// Which was is up
+        /// Gets or sets the ambient color of the light
         /// </summary>
-        public Vector3 Up { get; set; }
+        Vector3 AmbientColor { get; set; }
 
         /// <summary>
-        /// The field of view for the camera
+        /// Gets or sets the location of the light
         /// </summary>
-        public float FieldOfView { get; set; }
-
-        public float ViewportWidth { get; set; }
-
-        public float ViewportHeight { get; set; }
+        Vector3 Location { get; set; }
     }
 }

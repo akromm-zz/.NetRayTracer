@@ -17,35 +17,47 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-using Xunit;
-using NetRayTracer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace RayCasterTests
+namespace NetRayTracer
 {
-    public class CollisionTests
+    /// <summary>
+    /// Represents a camera which defines the parameters used for where the scene is rendered from  
+    /// </summary>
+    public class Viewport
     {
-        [Fact]
-        public void RayTriangleTest()
-        {
-            Vector3 origin = new Vector3(0, 0, 0);
-            Vector3 direction = new Vector3(1, 0, 0);
-            Ray r = new Ray(origin, direction);
-            Triangle t = new Triangle(
-                new Vertex() { Position = new Vector3(2, 1, 0) },
-                new Vertex() { Position = new Vector3(2, 0, 1) },
-                new Vertex() { Position = new Vector3(2, 0, -1) });
+        /// <summary>
+        /// The position of the camera
+        /// </summary>
+        public Vector3 Position { get; set; }
 
-            float time = -1f;
-            bool collides = r.CollidesWith(t, ref time);
+        /// <summary>
+        /// The direction the camera is facing
+        /// </summary>
+        public Vector3 Facing { get; set; }
 
-            Assert.True(collides);
-            Assert.Equal(2f, time);
+        /// <summary>
+        /// Which was is up
+        /// </summary>
+        public Vector3 Up { get; set; }
 
-            Ray r2 = new Ray(origin, -direction);
+        /// <summary>
+        /// The field of view for the camera
+        /// </summary>
+        public float FieldOfView { get; set; }
 
-            collides = r2.CollidesWith(t, ref time);
-            Assert.False(collides);
-            Assert.Equal(-2f, time);
-        }
+        /// <summary>
+        /// Gets or sets the width of the viewport
+        /// </summary>
+        public float Width { get; set; }
+
+        /// <summary>
+        /// Gets or sets the height of the viewport
+        /// </summary>
+        public float Height { get; set; }
     }
 }

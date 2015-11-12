@@ -43,19 +43,11 @@ namespace NetRayTracer
         public int Width { get; set; }
 
         /// <summary>
-        /// Gets or sets the camera used for rendering
-        /// </summary>
-        public Camera Camera { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Scene"/> class.
         /// </summary>
-        public Scene(Camera cam, int width, int height)
+        public Scene()
         {
             Triangles = new List<Triangle>();
-            Camera = cam;
-            Width = width;
-            Height = height;
         }
     }
 }
