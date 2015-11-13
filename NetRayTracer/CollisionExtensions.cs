@@ -44,9 +44,17 @@ namespace NetRayTracer
 
             // Calculate the time to the first point from ray origin
             time = -1;
-            time = -Vector3.Dot(op, t.Normal) / Vector3.Dot(r.Direction, t.Normal);
+            float opt = Vector3.Dot(op, t.Normal);
 
-            if (time > ProximityTolerance)
+            if(opt < 0)
+            {
+                // Ignore backfaces
+                return false;
+            }
+
+            time = -opt / Vector3.Dot(r.Direction, t.Normal);
+            
+            if (time > ProximityTolerance && !float.IsInfinity(time))
             {
                 Vector3 coord = r.PointAtDistance(time);
 

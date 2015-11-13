@@ -1,0 +1,32 @@
+{
+  "jitter": 1,
+  "jitterRays": 1,
+  "shadowRays": 1,
+  "maxRayDepth": 1,
+  "objFile": "..\\..\\..\\Sample\\al.obj",
+  "outputWidth": 50,
+  "outputHeight": 50,
+  "viewportData": {
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": 4,
+    },
+    "facing": {
+      "x": 0,
+      "y": 0,
+      "z": -1,
+    },
+    "up": {
+      "x": 0,
+      "y": 1,
+      "z": 0,
+    },
+    "fieldOfView": 90,
+    "width": 20,
+    "height": 20,
+  },
+	"lights": [
+	
+	]
+}

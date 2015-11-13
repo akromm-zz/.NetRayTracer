@@ -57,6 +57,12 @@ namespace NetRayTracer
             get { return _z; }
             set { _z = value; }
         }
+        
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public Vector3()
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Vector3"/> class.

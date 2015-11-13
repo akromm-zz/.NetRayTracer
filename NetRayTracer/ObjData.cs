@@ -176,6 +176,7 @@ namespace NetRayTracer
             normals = new List<Vector3>();
             texCoords = new List<Vector3>();
             faces = new List<Triangle>();
+            materials = new List<Material>();
         }
 
         /// <summary>
@@ -189,7 +190,7 @@ namespace NetRayTracer
 
             if (!File.Exists(filepath))
             {
-                throw new ArgumentException("The path '{0}' does not exist", filepath);
+                throw new ArgumentException(string.Format("The path '{0}' does not exist", filepath));
             }
 
             // List of state variables
@@ -199,7 +200,7 @@ namespace NetRayTracer
             string currentMaterial = string.Empty;
 
             // List of material files we will need to load
-            List<string> materialFiles = null;
+            List<string> materialFiles = new List<string>();
 
             // Load up the file for reading
             using (FileStream stream = File.OpenRead(filepath))
@@ -210,7 +211,10 @@ namespace NetRayTracer
                 // Read through the whole file
                 while ((line = reader.ReadLine()) != null)
                 {
-                    string[] tokens = line.Split(' ');
+                    string[] tokens = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (tokens.Length == 0)
+                        continue;
 
                     switch (tokens[0])
                     {
@@ -351,7 +355,7 @@ namespace NetRayTracer
 
             if (!File.Exists(file))
             {
-                throw new ArgumentException("The path '{0}' does not exist", file);
+                throw new ArgumentException(string.Format("The path '{0}' does not exist", file));
             }
 
             Material currentMaterial;

@@ -33,7 +33,7 @@ namespace NetRayTracer
                 return;
             }
 
-            Configuration config = Configuration.Load(args[1]);
+            Configuration config = Configuration.Load(args[0]);
 
             ObjData data = ObjData.LoadFile(config.ObjFile);
 
@@ -43,7 +43,7 @@ namespace NetRayTracer
 
             Bitmap output = renderer.Render();
 
-            output.Save("output", ImageFormat.Jpeg);
+            output.Save("output.jpeg", ImageFormat.Jpeg);
         }
     }
 }

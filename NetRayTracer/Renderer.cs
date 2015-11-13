@@ -67,15 +67,17 @@ namespace NetRayTracer
         {
             Bitmap output = new Bitmap(config.OutputWidth, config.OutputHeight);
 
+            cameraPosition = new Vector3(0, 0, 0);
+
             //
             // NOTE: For now just support the viewport being in the xy-plane
             // This later needs to be updated to allow the viewport to move and be rotated
             //
-            cameraPosition = -config.ViewportData.Position;
+            cameraPosition.Z += (config.OutputHeight / (2.0f * (float)Math.Tan((config.ViewportData.FieldOfView / 2.0f) * (float)Math.PI / 180.0f)));
+            cameraPosition -= config.ViewportData.Position;
 
             // calculate the offset the camera needs to be from the viewport
-            cameraPosition.Z += (config.OutputHeight / (2.0f * (float)Math.Tan((config.ViewportData.FieldOfView / 2.0f) * (float)Math.PI / 180.0f)));
-
+            
             // Get the left and top side of the viewport in screen coordinates
             float viewportLeftWorldSpace = config.ViewportData.Position.X - config.ViewportData.Width / 2.0f;
             float viewportTopWorldSpace = config.ViewportData.Position.Y - config.ViewportData.Height / 2.0f;
@@ -88,9 +90,9 @@ namespace NetRayTracer
             float zDist = config.ViewportData.Position.Z - cameraPosition.Z;
 
             // Start casting the rays and tracing
-            for(int h = config.OutputHeight;  h >= 0; h--)
+            for (int h = 0; h < config.OutputHeight; h++)
             {
-                for(int w = 0; w <= config.OutputWidth; w++)
+                for (int w = 0; w < config.OutputWidth; w++)
                 {
                     Vector3 viewportPos = new Vector3(
                         viewportLeftWorldSpace + w * horizontalUnitsPerPixel,
@@ -124,15 +126,15 @@ namespace NetRayTracer
             float closestTime = float.MaxValue;
             Triangle closestTriangle = null;
             Vector3 closestPosition = null;
-            Color returnColor = Color.Black;
+            Color returnColor = Color.FromArgb(0, 0, 0);
 
-            foreach(var t in scene.Triangles)
+            foreach (var t in scene.Triangles)
             {
                 float time = float.MaxValue;
 
-                if(r.CollidesWith(t, ref time))
+                if (r.CollidesWith(t, ref time))
                 {
-                    if(time < closestTime && time > ProximityTolerance)
+                    if (time < closestTime && time > ProximityTolerance)
                     {
                         closestTime = time;
                         closestTriangle = t;
@@ -142,13 +144,16 @@ namespace NetRayTracer
             }
 
             // If we can still cast rays deeper and we collided with an object, then cast more rays
-            if(depth < config.MaxRayDepth && closestTriangle != null)
+            if (depth < config.MaxRayDepth && closestTriangle != null)
             {
                 // TODO: Cast reflection rays
 
                 // TODO: Cast refraction rays
+
+                // TODO: Add the color combinations from reflection and refraction
+                returnColor = closestTriangle.GetColor(closestPosition);
             }
-            else if ( closestTriangle != null)
+            else if (closestTriangle != null)
             {
                 returnColor = closestTriangle.GetColor(closestPosition);
             }

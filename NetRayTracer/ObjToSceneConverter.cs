@@ -81,12 +81,21 @@ namespace NetRayTracer
                 v2.Normal = data.normals[f.Vert2.normal - 1];
                 v3.Normal = data.normals[f.Vert3.normal - 1];
 
-                v1.TexCoord = data.texCoords[f.Vert1.texCoord - 1];
-                v2.TexCoord = data.texCoords[f.Vert2.texCoord - 1];
-                v3.TexCoord = data.texCoords[f.Vert3.texCoord - 1];
-                
-                Triangle t = new Triangle(v1, v2, v3, materials[f.Material]);
+                // Only set the texture coordinates if they were set
+                if (f.Vert1.texCoord > 0 && f.Vert2.texCoord > 0 && f.Vert3.texCoord > 0)
+                {
+                    v1.TexCoord = data.texCoords[f.Vert1.texCoord - 1];
+                    v2.TexCoord = data.texCoords[f.Vert2.texCoord - 1];
+                    v3.TexCoord = data.texCoords[f.Vert3.texCoord - 1];
+                }
 
+                Triangle t = new Triangle(v1, v2, v3);
+
+                if (!string.IsNullOrEmpty(f.Material))
+                {
+                    t.Material = materials[f.Material];
+                }
+                
                 s.Triangles.Add(t);
             }
             
