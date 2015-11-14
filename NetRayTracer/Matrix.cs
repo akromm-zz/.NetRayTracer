@@ -170,9 +170,9 @@ namespace NetRayTracer
         /// <param name="A">The matrix to use</param>
         /// <param name="b">The vector to use</param>
         /// <returns>The result of  multiplying the matrix and vector together</returns>
-        public static Vector3 operator*(Matrix A, Vector3 b)
+        public static Vector3 operator *(Matrix A, Vector3 b)
         {
-            if(A.Columns != A.Rows || A.Columns != 4)
+            if (A.Columns != A.Rows || A.Columns != 4)
             {
                 throw new ArgumentException("Matrix must be of size 4x4");
             }
@@ -226,6 +226,45 @@ namespace NetRayTracer
         }
 
         /// <summary>
+        /// Calculates a transformation matrix for LookAt
+        /// </summary>
+        /// <param name="up">Up direction</param>
+        /// <param name="eye">Eye position</param>
+        /// <param name="target">What is being looked at</param>
+        /// <returns>The transformation matrix</returns>
+        public static Matrix LookAt(Vector3 up, Vector3 eye, Vector3 target)
+        {
+            Matrix m = new Matrix(4, 4);
+            
+            Vector3 zAxis = (eye - target).Normalized;
+            Vector3 xAxis = Vector3.Cross(up, zAxis).Normalized;
+            Vector3 yAxis = Vector3.Cross(zAxis, xAxis);
+
+            m[0, 0] = xAxis.X; m[1, 0] = yAxis.X; m[2, 0] = zAxis.X; m[3, 0] = Vector3.Dot(new Vector3(1, 0, 0), eye); //Vector3.Dot(xAxis, eye)
+            m[0, 1] = xAxis.Y; m[1, 1] = yAxis.Y; m[2, 1] = zAxis.Y; m[3, 1] = Vector3.Dot(new Vector3(0, 1, 0), eye); //
+            m[0, 2] = xAxis.Z; m[1, 2] = yAxis.Z; m[2, 2] = zAxis.Z; m[3, 2] = Vector3.Dot(new Vector3(0, 0, 1), eye); // Vector3.Dot(zAxis, eye)
+            m[0, 3] = 0; m[1, 3] = 0; m[2, 3] = 0; m[3, 3] = 1;
+            
+            return m;
+        }
+
+        /// <summary>
+        /// Creates a translation matrix 
+        /// </summary>
+        /// <param name="pos">The point to move to</param>
+        /// <returns>A matrix that will move to pos</returns>
+        public static Matrix Translation(Vector3 pos)
+        {
+            Matrix m = Matrix.Identity(4);
+
+            m[3, 0] = pos.X;
+            m[3, 1] = pos.Y;
+            m[3, 2] = pos.Z;
+
+            return m;
+        }
+
+        /// <summary>
         /// Override default equals implementation
         /// </summary>
         /// <param name="obj">The other object (matrix) to compare to</param>
@@ -258,13 +297,14 @@ namespace NetRayTracer
                 for (int j = 0; j < Columns; j++)
                 {
                     b.Append(this[j, i]);
-                    if(j < Columns - 1)
+                    if (j < Columns - 1)
                     {
                         b.Append(",");
                     }
                 }
 
                 b.Append("]");
+                b.AppendLine();
             }
 
             b.Append("]");

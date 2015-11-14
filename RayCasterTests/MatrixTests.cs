@@ -107,5 +107,19 @@ namespace RayCasterTests
 
             Assert.True(expected == result);
         }
+
+        [Fact]
+        public void MatrixLookAt()
+        {
+            // This should leave coordinate system untouched
+            Matrix m = Matrix.LookAt(new Vector3(0, 1, 0), Vector3.Zero, new Vector3(0, 0, -1));
+            Vector3 up = new Vector3(0, 1, 0);
+            Vector3 up2 = m * up;
+            Assert.True(up == up2);
+
+
+
+        }
+
     }
 }

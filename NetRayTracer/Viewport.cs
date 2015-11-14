@@ -36,12 +36,12 @@ namespace NetRayTracer
         public Vector3 Position { get; set; }
 
         /// <summary>
-        /// The direction the camera is facing
+        /// Gets or sets what the camera is looking at
         /// </summary>
-        public Vector3 Facing { get; set; }
+        public Vector3 Target { get; set; }
 
         /// <summary>
-        /// Which was is up
+        /// Which way is up
         /// </summary>
         public Vector3 Up { get; set; }
 

@@ -84,21 +84,19 @@ namespace NetRayTracer
         {
             Bitmap output = new Bitmap(config.OutputWidth, config.OutputHeight);
 
-            cameraPosition = new Vector3(0, 0, 0);
+            Matrix view = Matrix.LookAt(config.ViewportData.Up, config.ViewportData.Position, config.ViewportData.Target);
 
-            //
-            // NOTE: For now just support the viewport being in the xy-plane
-            // This later needs to be updated to allow the viewport to move and be rotated
-            //
+            // calcualte the camera position using the view matrix
+            cameraPosition = new Vector3(0, 0, 0);
             cameraPosition.Z = (config.OutputHeight / (2.0f * (float)Math.Tan((config.ViewportData.FieldOfView / 2.0f) * (float)Math.PI / 180.0f)));
-            cameraPosition += config.ViewportData.Position;
-            
+            cameraPosition = view * cameraPosition;
+
             Vector3 right = new Vector3(1, 0, 0);
             Vector3 up = new Vector3(0, 1, 0);
-
+            
             // Get the left and top side of the viewport in screen coordinates
-            Vector3 viewportLeftWorldSpace = -(config.ViewportData.Width / 2.0f) * right;
-            Vector3 viewportTopWorldSpace = +(config.ViewportData.Height / 2.0f) * up;
+            Vector3 viewportLeftWorldSpace = (-(config.ViewportData.Width / 2.0f) * right);
+            Vector3 viewportTopWorldSpace = ((config.ViewportData.Height / 2.0f) * up);
 
             // Get the number of world units per pixel
             float horizontalUnitsPerPixel = config.ViewportData.Width / config.OutputWidth;
@@ -123,16 +121,24 @@ namespace NetRayTracer
                     tasks[h * config.OutputWidth + w] = Task.Factory.StartNew((td) =>
                     {
                         TaskData data = (TaskData)td;
+
+                        // Get the position of the ray target in the viewport 
                         Vector3 viewportPos =
                             right * data.x * horizontalUnitsPerPixel + viewportLeftWorldSpace
-                            - up * data.y * verticalUnitsPerPixel + viewportTopWorldSpace
-                            + config.ViewportData.Position;
+                            - up * data.y * verticalUnitsPerPixel + viewportTopWorldSpace;
 
+                        // Calculate the viewport position using the view matrix
+                        viewportPos = view * viewportPos;
+
+                        // Calculate the direction of the ray
                         Vector3 direction = viewportPos - cameraPosition;
 
+                        // Create the ray
                         Ray r = new Ray(cameraPosition, direction);
 
+                        // Cast the ray into the scene and store the resultant color
                         colors[data.x, data.y] = CastRay(r);
+
                     }, (object)d);
                 }
             }
