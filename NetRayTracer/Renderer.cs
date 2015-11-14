@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,22 @@ namespace NetRayTracer
 {
     public class Renderer
     {
+        /// <summary>
+        /// Private class to contain information passed to tasks
+        /// </summary>
+        private class TaskData
+        {
+            /// <summary>
+            /// The current pixel x coordinate
+            /// </summary>
+            public int x;
+
+            /// <summary>
+            /// The current pixel y coordinate
+            /// </summary>
+            public int y;
+        }
+
         /// <summary>
         /// The closest an object can be to a ray origin before it is ignored
         /// </summary>
@@ -73,39 +90,60 @@ namespace NetRayTracer
             // NOTE: For now just support the viewport being in the xy-plane
             // This later needs to be updated to allow the viewport to move and be rotated
             //
-            cameraPosition.Z += (config.OutputHeight / (2.0f * (float)Math.Tan((config.ViewportData.FieldOfView / 2.0f) * (float)Math.PI / 180.0f)));
-            cameraPosition -= config.ViewportData.Position;
-
-            // calculate the offset the camera needs to be from the viewport
+            cameraPosition.Z = (config.OutputHeight / (2.0f * (float)Math.Tan((config.ViewportData.FieldOfView / 2.0f) * (float)Math.PI / 180.0f)));
+            cameraPosition += config.ViewportData.Position;
             
+            Vector3 right = new Vector3(1, 0, 0);
+            Vector3 up = new Vector3(0, 1, 0);
+
             // Get the left and top side of the viewport in screen coordinates
-            float viewportLeftWorldSpace = config.ViewportData.Position.X - config.ViewportData.Width / 2.0f;
-            float viewportTopWorldSpace = config.ViewportData.Position.Y - config.ViewportData.Height / 2.0f;
+            Vector3 viewportLeftWorldSpace = -(config.ViewportData.Width / 2.0f) * right;
+            Vector3 viewportTopWorldSpace = +(config.ViewportData.Height / 2.0f) * up;
 
             // Get the number of world units per pixel
             float horizontalUnitsPerPixel = config.ViewportData.Width / config.OutputWidth;
             float verticalUnitsPerPixel = config.ViewportData.Height / config.OutputHeight;
 
-            // The z component for the viewport when creating the rays
-            float zDist = config.ViewportData.Position.Z - cameraPosition.Z;
+            // Keep track of all the tasks we start (one for each ray emitted by camera
+            Task[] tasks = new Task[config.OutputWidth * config.OutputHeight];
+
+            // Keep track of the final color of each pixel.  Bitmap doesnt allow concurrent access
+            Color[,] colors = new Color[config.OutputWidth, config.OutputHeight];
 
             // Start casting the rays and tracing
             for (int h = 0; h < config.OutputHeight; h++)
             {
                 for (int w = 0; w < config.OutputWidth; w++)
                 {
-                    Vector3 viewportPos = new Vector3(
-                        viewportLeftWorldSpace + w * horizontalUnitsPerPixel,
-                        viewportTopWorldSpace + h * verticalUnitsPerPixel,
-                        zDist);
+                    // Store current loop state to pass to the task
+                    TaskData d = new TaskData();
+                    d.x = w;
+                    d.y = h;
 
-                    Vector3 direction = viewportPos - cameraPosition;
+                    tasks[h * config.OutputWidth + w] = Task.Factory.StartNew((td) =>
+                    {
+                        TaskData data = (TaskData)td;
+                        Vector3 viewportPos =
+                            right * data.x * horizontalUnitsPerPixel + viewportLeftWorldSpace
+                            - up * data.y * verticalUnitsPerPixel + viewportTopWorldSpace
+                            + config.ViewportData.Position;
 
-                    Ray r = new Ray(cameraPosition, direction);
+                        Vector3 direction = viewportPos - cameraPosition;
 
-                    Color c = CastRay(r);
+                        Ray r = new Ray(cameraPosition, direction);
 
-                    output.SetPixel(w, h, c);
+                        colors[data.x, data.y] = CastRay(r);
+                    }, (object)d);
+                }
+            }
+
+            Task.WaitAll(tasks);
+
+            for (int x = 0; x < config.OutputWidth; x++)
+            {
+                for (int y = 0; y < config.OutputHeight; y++)
+                {
+                    output.SetPixel(x, y, colors[x, y]);
                 }
             }
 

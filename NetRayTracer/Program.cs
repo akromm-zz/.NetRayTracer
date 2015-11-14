@@ -18,6 +18,7 @@
 /// THE SOFTWARE.
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -33,17 +34,28 @@ namespace NetRayTracer
                 return;
             }
 
+            Stopwatch watch = Stopwatch.StartNew();
+
+            Console.WriteLine("{0} Reading config", watch.Elapsed);
             Configuration config = Configuration.Load(args[0]);
 
+            Console.WriteLine("{0} Loading Obj", watch.Elapsed);
             ObjData data = ObjData.LoadFile(config.ObjFile);
 
+            Console.WriteLine("{0} Loading Scene", watch.Elapsed);
             Scene scene = ObjToSceneConverter.Convert(data);
-
+            
+            Console.WriteLine("{0} Rendering", watch.Elapsed);
             Renderer renderer = new Renderer(config, scene);
 
             Bitmap output = renderer.Render();
 
+
+            Console.WriteLine("{0} Saving output", watch.Elapsed);
             output.Save("output.jpeg", ImageFormat.Jpeg);
+
+            Console.WriteLine("{0} Done!", watch.Elapsed);
+            Console.ReadLine();
         }
     }
 }
