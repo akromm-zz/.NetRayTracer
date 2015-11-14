@@ -52,10 +52,43 @@ namespace NetRayTracer
         /// <returns>Whether or not the two vertices are equal</returns>
         public static bool operator ==(Vertex a, Vertex b)
         {
-            return
-                a.Position == b.Position
-                && a.Normal == b.Normal
-                && a.TexCoord == b.TexCoord;
+            if (a.Position != null && b.Position != null)
+            {
+                if (a.Position != b.Position)
+                {
+                    return false;
+                }
+            }
+            else if (a.Position != b.Position) //if one is null and the other isnt
+            {
+                return false;
+            }
+
+            if (a.Normal != null && b.Normal != null)
+            {
+                if (a.Normal != b.Normal)
+                {
+                    return false;
+                }
+            }
+            else if (a.Normal != b.Normal) //if one is null and the other isnt
+            {
+                return false;
+            }
+
+            if (a.TexCoord != null && b.TexCoord != null)
+            {
+                if (a.TexCoord != b.TexCoord)
+                {
+                    return false;
+                }
+            }
+            else if (a.TexCoord != b.TexCoord) //if one is null and the other isnt
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -64,7 +97,7 @@ namespace NetRayTracer
         /// <param name="a">The first vertex to compare</param>
         /// <param name="b">The second vertex to compare</param>
         /// <returns>Whether or not the two vertices are inequal</returns>
-        public static bool operator != (Vertex a, Vertex b)
+        public static bool operator !=(Vertex a, Vertex b)
         {
             return !(a == b);
         }
@@ -87,7 +120,7 @@ namespace NetRayTracer
         public override bool Equals(object obj)
         {
             var other = obj as Vertex;
-            if(other != null)
+            if (other != null)
             {
                 return this == other;
             }
@@ -101,7 +134,10 @@ namespace NetRayTracer
         /// <returns>The formatted string representing the vertex</returns>
         public override string ToString()
         {
-            return string.Format("[p:({0}), n:({1}), t:({2})]", Position.ToString(), Normal.ToString(), TexCoord.ToString());
+            return string.Format("[p:({0}), n:({1}), t:({2})]", 
+                Position.ToString(), 
+                Normal == null ? "null" : Normal.ToString(), 
+                TexCoord == null ? "null" : TexCoord.ToString());
         }
 
         /// <summary>

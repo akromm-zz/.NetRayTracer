@@ -150,7 +150,19 @@ namespace NetRayTracer
         /// <returns></returns>
         public static bool operator ==(Vector3 a, Vector3 b)
         {
-            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+            // Both non-null
+            if(a is Vector3 && b is Vector3)
+            {
+                return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+            }
+
+            // Both are null
+            if(!(a is Vector3) && !(b is Vector3))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

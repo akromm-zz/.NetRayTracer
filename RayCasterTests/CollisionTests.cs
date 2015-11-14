@@ -32,8 +32,8 @@ namespace RayCasterTests
             Ray r = new Ray(origin, direction);
             Triangle t = new Triangle(
                 new Vertex() { Position = new Vector3(2, 1, 0) },
-                new Vertex() { Position = new Vector3(2, 0, 1) },
-                new Vertex() { Position = new Vector3(2, 0, -1) });
+                new Vertex() { Position = new Vector3(2, 0, -1) },
+                new Vertex() { Position = new Vector3(2, 0, 1) });
 
             float time = -1f;
             bool collides = r.CollidesWith(t, ref time);

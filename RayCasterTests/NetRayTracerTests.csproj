@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CollisionTests.cs" />
+    <Compile Include="MatrixTests.cs" />
     <Compile Include="TriangleTests.cs" />
     <Compile Include="Vector3Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

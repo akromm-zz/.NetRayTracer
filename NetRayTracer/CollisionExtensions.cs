@@ -46,11 +46,12 @@ namespace NetRayTracer
             time = -1;
             float opt = Vector3.Dot(op, t.Normal);
 
-            if(opt < 0)
-            {
+            // We need to detect backfaces for when doing refractions
+            //if(opt < 0)
+            //{
                 // Ignore backfaces
-                return false;
-            }
+            //    return false;
+            //}
 
             time = -opt / Vector3.Dot(r.Direction, t.Normal);
             

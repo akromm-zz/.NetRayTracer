@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Light.cs" />
+    <Compile Include="Matrix.cs" />
     <Compile Include="Viewport.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Material.cs" />
