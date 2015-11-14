@@ -163,7 +163,7 @@ namespace NetRayTracer
         {
             float closestTime = float.MaxValue;
             Triangle closestTriangle = null;
-            Vector3 closestPosition = null;
+            Vector3 closestPosition = Vector3.Zero;
             Color returnColor = Color.FromArgb(0, 0, 0);
 
             foreach (var t in scene.Triangles)

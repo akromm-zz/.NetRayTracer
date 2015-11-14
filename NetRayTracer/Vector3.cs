@@ -24,7 +24,7 @@ namespace NetRayTracer
     /// <summary>
     /// Represents a vector in 3D space
     /// </summary>
-    public class Vector3 : IEquatable<Vector3>
+    public struct Vector3 : IEquatable<Vector3>
     {
         /// <summary>
         /// The 3 coordinate components
@@ -57,12 +57,6 @@ namespace NetRayTracer
             get { return _z; }
             set { _z = value; }
         }
-        
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public Vector3()
-        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Vector3"/> class.
@@ -143,6 +137,17 @@ namespace NetRayTracer
         }
 
         /// <summary>
+        /// Define scalar-vector division
+        /// </summary>
+        /// <param name="a">The vector to scale</param>
+        /// <param name="s">The scalar to use</param>
+        /// <returns>The scaled vector</returns>
+        public static Vector3 operator /(Vector3 a, float s)
+        {
+            return new Vector3(a.X / s, a.Y / s, a.Z / s);
+        }
+
+        /// <summary>
         /// Compares the dimensions of the two vectors to see if they are the same
         /// </summary>
         /// <param name="a">The first part of the equality test</param>
@@ -150,19 +155,7 @@ namespace NetRayTracer
         /// <returns></returns>
         public static bool operator ==(Vector3 a, Vector3 b)
         {
-            // Both non-null
-            if(a is Vector3 && b is Vector3)
-            {
-                return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
-            }
-
-            // Both are null
-            if(!(a is Vector3) && !(b is Vector3))
-            {
-                return true;
-            }
-
-            return false;
+            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
         }
 
         /// <summary>
@@ -230,7 +223,7 @@ namespace NetRayTracer
             return new Vector3(
                 a.Y * b.Z - a.Z * b.Y,
                 -(a.X * b.Z) + a.Z * b.X,
-                a.X * b.Y - a.Y * b.X); 
+                a.X * b.Y - a.Y * b.X);
         }
 
         /// <summary>
@@ -244,6 +237,17 @@ namespace NetRayTracer
         {
             //v - 2(v (dot) n) n
             return vec - (2f * Vector3.Dot(vec, normal)) * normal;
+        }
+
+        /// <summary>
+        /// Gets a vector of length zero
+        /// </summary>
+        public static Vector3 Zero
+        {
+            get
+            {
+                return new Vector3(0, 0, 0);
+            }
         }
 
         /// <summary>
@@ -263,10 +267,10 @@ namespace NetRayTracer
         /// <returns>True if the object is a vector and they are equal</returns>
         public override bool Equals(object obj)
         {
-            var other = obj as Vector3;
-            if(other != null)
+            if (obj is Vector3)
             {
-                return this == other;
+                Vector3 other = (Vector3)obj;
+                return this.X == other.X && this.Y == other.Y && this.Z == other.Z;
             }
 
             return false;

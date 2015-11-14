@@ -28,15 +28,21 @@ namespace NetRayTracer
     /// <summary>
     /// Represents a matrix 
     /// </summary>
-    public class Matrix
+    public struct Matrix
     {
         /// <summary>
         /// Stores the Matrix data
         /// </summary>
         private float[,] _data;
 
+        /// <summary>
+        /// The number of rows in this matrix
+        /// </summary>
         public int Rows { get; private set; }
 
+        /// <summary>
+        /// the number of columns in this matrix
+        /// </summary>
         public int Columns { get; private set; }
 
         /// <summary>
@@ -56,7 +62,7 @@ namespace NetRayTracer
         /// </summary>
         /// <param name="x">The column to get data from</param>
         /// <param name="y">The row to get data from</param>
-        /// <returns></returns>
+        /// <returns>The value stored in column x, and row y</returns>
         public float this[int x, int y]
         {
             get
@@ -70,11 +76,11 @@ namespace NetRayTracer
         }
 
         /// <summary>
-        /// Multiplies matrix A by matrix B
+        /// Multiplies matrix A by matrix B (M = AB)
         /// </summary>
-        /// <param name="A"></param>
-        /// <param name="B"></param>
-        /// <returns></returns>
+        /// <param name="A">The first part of the matrix multiplication</param>
+        /// <param name="B">The second part of the matrix multiplication</param>
+        /// <returns>The result</returns>
         public static Matrix operator *(Matrix A, Matrix B)
         {
             if (A.Columns != B.Rows)
@@ -93,6 +99,27 @@ namespace NetRayTracer
                     {
                         m[j, i] += A[k, i] * B[j, k];
                     }
+                }
+            }
+
+            return m;
+        }
+
+        /// <summary>
+        /// Does matrix scalar multiplication
+        /// </summary>
+        /// <param name="scalar">The scalar to use to multiply the matrix with</param>
+        /// <param name="A">The matrix to scale</param>
+        /// <returns>The result of the multiplication</returns>
+        public static Matrix operator *(float scalar, Matrix A)
+        {
+            Matrix m = new Matrix(A.Columns, A.Rows);
+
+            for (int i = 0; i < A.Rows; i++)
+            {
+                for (int j = 0; j < A.Columns; j++)
+                {
+                    m[j, i] = scalar * A[j, i];
                 }
             }
 
@@ -138,19 +165,28 @@ namespace NetRayTracer
         }
 
         /// <summary>
-        /// Override default equals implementation
+        /// Multiply a Matrix and a vector together result = Ab.  Matrix must have dimension 4x4
         /// </summary>
-        /// <param name="obj">The other object (matrix) to compare to</param>
-        /// <returns>True if this matrix is equal to <paramref name="obj"/>.</returns>
-        public override bool Equals(object obj)
+        /// <param name="A">The matrix to use</param>
+        /// <param name="b">The vector to use</param>
+        /// <returns>The result of  multiplying the matrix and vector together</returns>
+        public static Vector3 operator*(Matrix A, Vector3 b)
         {
-            var m = obj as Matrix;
-            if (m != null)
+            if(A.Columns != A.Rows || A.Columns != 4)
             {
-                return this == m;
+                throw new ArgumentException("Matrix must be of size 4x4");
             }
 
-            return false;
+            Vector3 result = new Vector3();
+
+            result.X = A[0, 0] * b.X + A[1, 0] * b.Y + A[2, 0] * b.Z + A[3, 0];
+            result.Y = A[0, 1] * b.X + A[1, 1] * b.Y + A[2, 1] * b.Z + A[3, 1];
+            result.Z = A[0, 2] * b.X + A[1, 2] * b.Y + A[2, 2] * b.Z + A[3, 2];
+            float w = A[0, 3] * b.X + A[1, 3] * b.Y + A[2, 3] * b.Z + A[3, 3];
+
+            result /= w;
+
+            return result;
         }
 
         /// <summary>
@@ -167,6 +203,82 @@ namespace NetRayTracer
             }
 
             return m;
+        }
+
+        /// <summary>
+        /// Transposes a matrix
+        /// </summary>
+        /// <param name="A"></param>
+        /// <returns></returns>
+        public Matrix Transpose(Matrix A)
+        {
+            Matrix m = new Matrix(A.Rows, A.Columns);
+
+            for (int i = 0; i < A.Rows; i++)
+            {
+                for (int j = 0; j < A.Columns; j++)
+                {
+                    m[i, j] = A[j, i];
+                }
+            }
+
+            return m;
+        }
+
+        /// <summary>
+        /// Override default equals implementation
+        /// </summary>
+        /// <param name="obj">The other object (matrix) to compare to</param>
+        /// <returns>True if this matrix is equal to <paramref name="obj"/>.</returns>
+        public override bool Equals(object obj)
+        {
+            if (obj is Matrix)
+            {
+                Matrix m = (Matrix)obj;
+                return this == m;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Overrides the default ToString behaviour
+        /// </summary>
+        /// <returns>The string representation of this matrix</returns>
+        public override string ToString()
+        {
+            StringBuilder b = new StringBuilder();
+
+            b.Append("[");
+
+            for (int i = 0; i < Rows; i++)
+            {
+                b.Append(string.Format("r{0}:[", i));
+
+                for (int j = 0; j < Columns; j++)
+                {
+                    b.Append(this[j, i]);
+                    if(j < Columns - 1)
+                    {
+                        b.Append(",");
+                    }
+                }
+
+                b.Append("]");
+            }
+
+            b.Append("]");
+
+            return b.ToString();
+        }
+
+        /// <summary>
+        /// Override the get hash code implementation
+        /// </summary>
+        /// <returns>The hash code of this matrix</returns>
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
         }
     }
 }
