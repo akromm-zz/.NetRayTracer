@@ -46,6 +46,11 @@ namespace NetRayTracer
         }
 
         /// <summary>
+        /// Used for some generating some variance in rays being cast
+        /// </summary>
+        private static Random rand = new Random(DateTime.Now.Millisecond);
+
+        /// <summary>
         /// The closest an object can be to a ray origin before it is ignored
         /// </summary>
         private const float ProximityTolerance = 0.5f;
@@ -93,7 +98,7 @@ namespace NetRayTracer
 
             Vector3 right = new Vector3(1, 0, 0);
             Vector3 up = new Vector3(0, 1, 0);
-            
+
             // Get the left and top side of the viewport in screen coordinates
             Vector3 viewportLeftWorldSpace = (-(config.ViewportData.Width / 2.0f) * right);
             Vector3 viewportTopWorldSpace = ((config.ViewportData.Height / 2.0f) * up);
@@ -106,7 +111,7 @@ namespace NetRayTracer
             Task[] tasks = new Task[config.OutputWidth * config.OutputHeight];
 
             // Keep track of the final color of each pixel.  Bitmap doesnt allow concurrent access
-            Color[,] colors = new Color[config.OutputWidth, config.OutputHeight];
+            Vector4[,] colors = new Vector4[config.OutputWidth, config.OutputHeight];
 
             // Start casting the rays and tracing
             for (int h = 0; h < config.OutputHeight; h++)
@@ -149,7 +154,14 @@ namespace NetRayTracer
             {
                 for (int y = 0; y < config.OutputHeight; y++)
                 {
-                    output.SetPixel(x, y, colors[x, y]);
+                    ScaleColor(ref colors[x, y]);
+                    colors[x, y] *= 255;
+                    output.SetPixel(x, y,
+                        Color.FromArgb(
+                            (int)colors[x, y].W,
+                            (int)colors[x, y].X,
+                            (int)colors[x, y].Y,
+                            (int)colors[x, y].Z));
                 }
             }
 
@@ -159,18 +171,40 @@ namespace NetRayTracer
         }
 
         /// <summary>
+        /// Scales the color so that no component is greater than 1.0f
+        /// </summary>
+        /// <param name="color">The color to scale</param>
+        private void ScaleColor(ref Vector4 color)
+        {
+            // Find the biggest component (except w) or 1.0f if they are all smaller
+            float max = Math.Max(Math.Max(Math.Max(color.X, color.Y), color.Z), 1.0f);
+
+            // Scale all componenets (except w) so that 1.0 is the biggest number
+            color.X /= max;
+            color.Y /= max;
+            color.Z /= max;
+
+            if (color.W < 0) color.W = 0;
+            if (color.W > 1.0f) color.W = 1.0f;
+
+            if (color.X < 0) color.X = 0;
+            if (color.Y < 0) color.Y = 0;
+            if (color.Z < 0) color.Z = 0;
+        }
+
+        /// <summary>
         /// Casts a ray and gets the resultant color
         /// </summary>
         /// <param name="r">The ray to cast</param>
         /// <param name="depth">The current depth of the ray into the scene</param>
         /// <param name="sourceTriangle">The source of the ray if it was reflected/refracted</param>
         /// <returns>The resultant color of the ray</returns>
-        public Color CastRay(Ray r, int depth = 0, Triangle sourceTriangle = null)
+        public Vector4 CastRay(Ray r, int depth = 0, Triangle sourceTriangle = null)
         {
             float closestTime = float.MaxValue;
             Triangle closestTriangle = null;
             Vector3 closestPosition = Vector3.Zero;
-            Color returnColor = Color.FromArgb(0, 0, 0);
+            Vector4 returnColor = Vector4.Zero;
 
             foreach (var t in scene.Triangles)
             {
@@ -195,28 +229,109 @@ namespace NetRayTracer
                 // TODO: Cast refraction rays
 
                 // TODO: Add the color combinations from reflection and refraction
-                returnColor = closestTriangle.GetColor(closestPosition);
+                returnColor = GetColor(closestTriangle, closestPosition);
             }
             else if (closestTriangle != null)
             {
-                returnColor = closestTriangle.GetColor(closestPosition);
+                returnColor = GetColor(closestTriangle, closestPosition);
             }
 
             return returnColor;
         }
 
-        public Color GetColor(Triangle t, Vector3 pos)
+        public Vector4 GetColor(Triangle t, Vector3 pos)
         {
-            Color c = new Color();
+            Vector4 c = t.GetColor(pos);
+            Vector4 retColor = new Vector4(0, 0, 0, 1);
 
-            c = t.GetColor(pos);
+            Vector3 viewVec = (cameraPosition - pos).Normalized;
 
-            Vector3 pointToCam = (cameraPosition - pos).Normalized;
+            foreach (var light in config.Lights)
+            {
+                Vector3 lightVec = (light.Location - pos).Normalized;
 
-            // TODO: Iterate over all lights in scene for phong shading
+                Vector4 avg = new Vector4();
 
+                // Calcualte diffuse lighting
 
-            return c;
+                // If this is >0 then the triangle light is somewhere in front of the triangle
+                float dot = Vector3.Dot(lightVec, t.Normal);
+                if (dot < 0) { dot = 0; }
+                Vector4 diffuse = new Vector4(
+                    c.X * light.DiffuseColor.X * dot,
+                    c.Y * light.DiffuseColor.Y * dot,
+                    c.Z * light.DiffuseColor.Z * dot,
+                    c.W * light.DiffuseColor.W * dot);
+
+                // Calculate specular lighting
+                Vector3 reflected = Vector3.Reflection(lightVec, t.Normal).Normalized;
+                dot = Vector3.Dot(reflected, viewVec);
+
+                Vector4 specular = new Vector4(
+                    (float)Math.Pow(light.SpecularColor.X * dot, t.GetSpecularCoefficient(pos)),
+                    (float)Math.Pow(light.SpecularColor.Y * dot, t.GetSpecularCoefficient(pos)),
+                    (float)Math.Pow(light.SpecularColor.Z * dot, t.GetSpecularCoefficient(pos)),
+                    (float)Math.Pow(light.SpecularColor.W * dot, t.GetSpecularCoefficient(pos)));
+
+                // Cast a bunch of shadow rays to determine how well lit this point is from the given light source
+                for(int i = 0;i < config.ShadowRays; i++)
+                {
+                    if(!InShadow(pos, light))
+                    {
+                        // If we are lit then add the diffuse and specular colors
+                        avg += diffuse;
+                        avg += specular;
+                    }
+                }
+
+                // Average the color by the number of shadow rays cast.
+                avg /= config.ShadowRays;
+
+                retColor.X += light.AmbientColor.X * c.X + avg.X;
+                retColor.Y += light.AmbientColor.Y * c.Y + avg.Y;
+                retColor.Z += light.AmbientColor.Z * c.Z + avg.Z;
+
+                ScaleColor(ref retColor);
+            }
+
+            return retColor;
+        }
+
+        /// <summary>
+        /// Determines if a point has direct line of sight to a light, or if it is shadowed by another object
+        /// </summary>
+        /// <param name="pos">The position being checked</param>
+        /// <param name="light">The light source</param>
+        /// <returns>Whether or not the point is lit by the light or in a shadow</returns>
+        private bool InShadow(Vector3 pos, Light light)
+        {
+            // Get a vector from pos to light with some variation
+            Vector3 lightVec = light.Location
+                + new Vector3(
+                    (float)rand.NextDouble() * 2.0f * light.Radius - light.Radius,
+                    (float)rand.NextDouble() * 2.0f * light.Radius - light.Radius,
+                    (float)rand.NextDouble() * 2.0f * light.Radius - light.Radius)
+                - pos;
+
+            float lightDist = lightVec.Magnitude;
+
+            Ray shadowRay = new Ray(pos, lightVec);
+
+            float time = -1;
+
+            // Iterate over all the triangles in the scene to see if they block the light
+            foreach(var t in scene.Triangles)
+            {
+                if(shadowRay.CollidesWith(t, ref time))
+                {
+                    if(time < lightDist && time > ProximityTolerance)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

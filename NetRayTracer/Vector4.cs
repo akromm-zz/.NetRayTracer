@@ -24,12 +24,12 @@ namespace NetRayTracer
     /// <summary>
     /// Represents a vector in 3D space
     /// </summary>
-    public struct Vector3 : IEquatable<Vector3>
+    public struct Vector4 : IEquatable<Vector4>
     {
         /// <summary>
         /// The 3 coordinate components
         /// </summary>
-        private float _x, _y, _z;
+        private float _x, _y, _z, _w;
 
         /// <summary>
         /// Gets or sets the x coordinate
@@ -59,27 +59,39 @@ namespace NetRayTracer
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Vector3"/> class.
+        /// Gets or sets the w coordinate (4th)
+        /// </summary>
+        public float W
+        {
+            get { return _w; }
+            set { _w = value; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Vector4"/> class.
         /// </summary>
         /// <param name="x">The x coordinate</param>
         /// <param name="y">The y coordinate</param>
         /// <param name="z">The z coordinate</param>
-        public Vector3(float x, float y, float z)
+        /// <param name="w">The w coordinate</param>
+        public Vector4(float x, float y, float z, float w)
         {
             _x = x;
             _y = y;
             _z = z;
+            _w = w;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Vector3"/> class.
+        /// Initializes a new instance of the <see cref="Vector4"/> class.
         /// </summary>
         /// <param name="other">The other vector to clone</param>
-        public Vector3(Vector3 other)
+        public Vector4(Vector4 other)
         {
             _x = other.X;
             _y = other.Y;
             _z = other.Z;
+            _w = other.W;
         }
 
         /// <summary>
@@ -88,9 +100,9 @@ namespace NetRayTracer
         /// <param name="a">The first vector to add</param>
         /// <param name="b">The second vector to add</param>
         /// <returns>The result of adding the vectors</returns>
-        public static Vector3 operator +(Vector3 a, Vector3 b)
+        public static Vector4 operator +(Vector4 a, Vector4 b)
         {
-            return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+            return new Vector4(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W  + b.W);
         }
 
         /// <summary>
@@ -99,9 +111,9 @@ namespace NetRayTracer
         /// <param name="a">The first part of the subtraction</param>
         /// <param name="b">The second part of the subtraction</param>
         /// <returns>The result of subtracting <paramref name="b"/> from <paramref name="a"/>.</returns>
-        public static Vector3 operator -(Vector3 a, Vector3 b)
+        public static Vector4 operator -(Vector4 a, Vector4 b)
         {
-            return new Vector3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+            return new Vector4(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W);
         }
 
         /// <summary>
@@ -109,9 +121,9 @@ namespace NetRayTracer
         /// </summary>
         /// <param name="a">The vector to reverse</param>
         /// <returns>The reversed direction</returns>
-        public static Vector3 operator -(Vector3 a)
+        public static Vector4 operator -(Vector4 a)
         {
-            return new Vector3(-a.X, -a.Y, -a.Z);
+            return new Vector4(-a.X, -a.Y, -a.Z, -a.W);
         }
 
         /// <summary>
@@ -120,9 +132,9 @@ namespace NetRayTracer
         /// <param name="a">The vector part of the multiplication</param>
         /// <param name="s">The scalar part of the multiplication</param>
         /// <returns>The scaled vector</returns>
-        public static Vector3 operator *(Vector3 a, float s)
+        public static Vector4 operator *(Vector4 a, float s)
         {
-            return new Vector3(a.X * s, a.Y * s, a.Z * s);
+            return new Vector4(a.X * s, a.Y * s, a.Z * s, a.W * s);
         }
 
         /// <summary>
@@ -131,9 +143,9 @@ namespace NetRayTracer
         /// <param name="s">The scalar part of the multiplication</param>
         /// <param name="a">The vector part of the multiplication</param>
         /// <returns>The scaled vector</returns>
-        public static Vector3 operator *(float s, Vector3 a)
+        public static Vector4 operator *(float s, Vector4 a)
         {
-            return new Vector3(a.X * s, a.Y * s, a.Z * s);
+            return a * s;
         }
 
         /// <summary>
@@ -142,9 +154,9 @@ namespace NetRayTracer
         /// <param name="a">The vector to scale</param>
         /// <param name="s">The scalar to use</param>
         /// <returns>The scaled vector</returns>
-        public static Vector3 operator /(Vector3 a, float s)
+        public static Vector4 operator /(Vector4 a, float s)
         {
-            return new Vector3(a.X / s, a.Y / s, a.Z / s);
+            return new Vector4(a.X / s, a.Y / s, a.Z / s, a.W / s);
         }
 
         /// <summary>
@@ -153,9 +165,9 @@ namespace NetRayTracer
         /// <param name="a">The first part of the equality test</param>
         /// <param name="b">The second part of the equality test</param>
         /// <returns></returns>
-        public static bool operator ==(Vector3 a, Vector3 b)
+        public static bool operator ==(Vector4 a, Vector4 b)
         {
-            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+            return a.X == b.X && a.Y == b.Y && a.Z == b.Z && a.W == b.W;
         }
 
         /// <summary>
@@ -164,7 +176,7 @@ namespace NetRayTracer
         /// <param name="a">The first part of the inequality</param>
         /// <param name="b">The second part of the inequality</param>
         /// <returns>Whether or not they two vectors are inequal</returns>
-        public static bool operator !=(Vector3 a, Vector3 b)
+        public static bool operator !=(Vector4 a, Vector4 b)
         {
             return !(a == b);
         }
@@ -176,19 +188,19 @@ namespace NetRayTracer
         {
             get
             {
-                return (float)Math.Sqrt(_x * _x + _y * _y + _z * _z);
+                return (float)Math.Sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
             }
         }
 
         /// <summary>
         /// Gets the normalized version of this vector
         /// </summary>
-        public Vector3 Normalized
+        public Vector4 Normalized
         {
             get
             {
                 float val = Magnitude;
-                return new Vector3(_x / val, _y / val, _z / val);
+                return new Vector4(_x / val, _y / val, _z / val, _w / val);
             }
         }
 
@@ -198,7 +210,7 @@ namespace NetRayTracer
         /// <returns>A formatted string representing the vector</returns>
         public override string ToString()
         {
-            return string.Format("({0},{1},{2})", _x, _y, _z);
+            return string.Format("({0},{1},{2},{3})", _x, _y, _z, _w);
         }
 
         /// <summary>
@@ -207,25 +219,11 @@ namespace NetRayTracer
         /// <param name="a">The first vector in the dot product</param>
         /// <param name="b">The second vector in the dot product</param>
         /// <returns>The dot product</returns>
-        public static float Dot(Vector3 a, Vector3 b)
+        public static float Dot(Vector4 a, Vector4 b)
         {
-            return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+            return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
         }
-
-        /// <summary>
-        /// Return the cross product of <paramref name="a"/> and <paramref name="b"/>.
-        /// </summary>
-        /// <param name="a">The first component of the cross product</param>
-        /// <param name="b">The second component of the cross product</param>
-        /// <returns>The cross product</returns>
-        public static Vector3 Cross(Vector3 a, Vector3 b)
-        {
-            return new Vector3(
-                a.Y * b.Z - a.Z * b.Y,
-                -(a.X * b.Z) + a.Z * b.X,
-                a.X * b.Y - a.Y * b.X);
-        }
-
+        
         /// <summary>
         /// Reflects a vector <paramref name="vec"/> accross the normal vector <paramref name="normal"/>
         /// </summary>
@@ -233,20 +231,20 @@ namespace NetRayTracer
         /// <param name="vec">The vector to reflect</param>
         /// <param name="normal">The normal to reflect the vector over</param>
         /// <returns>The reflected vector</returns>
-        public static Vector3 Reflection(Vector3 vec, Vector3 normal)
+        public static Vector4 Reflection(Vector4 vec, Vector4 normal)
         {
             //v - 2(v (dot) n) n
-            return vec - (2f * Vector3.Dot(vec, normal)) * normal;
+            return vec - (2f * Vector4.Dot(vec, normal)) * normal;
         }
 
         /// <summary>
         /// Gets a vector of length zero
         /// </summary>
-        public static Vector3 Zero
+        public static Vector4 Zero
         {
             get
             {
-                return new Vector3(0, 0, 0);
+                return new Vector4(0, 0, 0, 0);
             }
         }
 
@@ -255,7 +253,7 @@ namespace NetRayTracer
         /// </summary>
         /// <param name="other">The other vector to compare to</param>
         /// <returns>True if the vectors are equal</returns>
-        public bool Equals(Vector3 other)
+        public bool Equals(Vector4 other)
         {
             return this == other;
         }
@@ -267,10 +265,10 @@ namespace NetRayTracer
         /// <returns>True if the object is a vector and they are equal</returns>
         public override bool Equals(object obj)
         {
-            if (obj is Vector3)
+            if (obj is Vector4)
             {
-                Vector3 other = (Vector3)obj;
-                return this.X == other.X && this.Y == other.Y && this.Z == other.Z;
+                Vector4 other = (Vector4)obj;
+                return this == other;
             }
 
             return false;

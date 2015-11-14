@@ -94,7 +94,7 @@ namespace NetRayTracer
             /// <summary>
             /// The ambient, diffuse, and specular color. xyz = rgb
             /// </summary>
-            public Vector3 Ambient, Diffuse, Specular;
+            public Vector4 Ambient, Diffuse, Specular;
 
             /// <summary>
             /// The specular coefficient for this material
@@ -377,22 +377,25 @@ namespace NetRayTracer
                             currentMaterial.Name = tokens[1];
                             break;
                         case "Ka":
-                            currentMaterial.Ambient = new Vector3(
+                            currentMaterial.Ambient = new Vector4(
                                 float.Parse(tokens[1]),
                                 float.Parse(tokens[2]),
-                                float.Parse(tokens[3]));
+                                float.Parse(tokens[3]),
+                                1f);
                             break;
                         case "Kd":
-                            currentMaterial.Diffuse = new Vector3(
+                            currentMaterial.Diffuse = new Vector4(
                                 float.Parse(tokens[1]),
                                 float.Parse(tokens[2]),
-                                float.Parse(tokens[3]));
+                                float.Parse(tokens[3]),
+                                1f);
                             break;
                         case "Ks":
-                            currentMaterial.Specular = new Vector3(
+                            currentMaterial.Specular = new Vector4(
                                 float.Parse(tokens[1]),
                                 float.Parse(tokens[2]),
-                                float.Parse(tokens[3]));
+                                float.Parse(tokens[3]),
+                                1f);
                             break;
                         case "Ns":
                             currentMaterial.SpecularCoefficient = float.Parse(tokens[1]);

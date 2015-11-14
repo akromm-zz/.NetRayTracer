@@ -1,4 +1,6 @@
-﻿/// Copyright (c) 2015 Adam Kromm
+﻿
+using System.Drawing;
+/// Copyright (c) 2015 Adam Kromm
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
@@ -16,7 +18,6 @@
 /// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
-
 namespace NetRayTracer
 {
     /// <summary>
@@ -27,21 +28,26 @@ namespace NetRayTracer
         /// <summary>
         /// Get or sets the diffuse color of the light
         /// </summary>
-        Vector3 DiffuseColor { get; set;}
+        public Vector4 DiffuseColor { get; set;}
 
         /// <summary>
         /// Gets or sets the specular color of the light
         /// </summary>
-        Vector3 SpecularColor { get; set; }
+        public Vector4 SpecularColor { get; set; }
 
         /// <summary>
         /// Gets or sets the ambient color of the light
         /// </summary>
-        Vector3 AmbientColor { get; set; }
+        public Vector4 AmbientColor { get; set; }
 
         /// <summary>
         /// Gets or sets the location of the light
         /// </summary>
-        Vector3 Location { get; set; }
+        public Vector3 Location { get; set; }
+
+        /// <summary>
+        /// Gets or sets the radius of the light (affects shadows)
+        /// </summary>
+        public float Radius { get; set; }
     }
 }

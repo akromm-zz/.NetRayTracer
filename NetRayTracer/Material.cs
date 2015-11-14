@@ -73,7 +73,7 @@ namespace NetRayTracer
         /// <remarks>
         /// This is overriden by the SpecularMap
         /// </remarks>
-        public Vector3 SpecularColor { get; set; }
+        public Vector4 SpecularColor { get; set; }
 
         /// <summary>
         /// Gets or sets the diffuse light color
@@ -81,7 +81,7 @@ namespace NetRayTracer
         /// <remarks>
         /// This is overriden by the DiffuseMap
         /// </remarks>
-        public Vector3 DiffuseColor { get; set; }
+        public Vector4 DiffuseColor { get; set; }
 
         /// <summary>
         /// Gets or sets the ambient light color
@@ -89,7 +89,7 @@ namespace NetRayTracer
         /// <remarks>
         /// This is overriden by the AmbientMap
         /// </remarks>
-        public Vector3 AmbientColor { get; set; }
+        public Vector4 AmbientColor { get; set; }
 
         /// <summary>
         /// Gets or sets the transparency
@@ -111,5 +111,6 @@ namespace NetRayTracer
         /// Gets or sets the name of this material
         /// </summary>
         public string Name { get; internal set; }
+
     }
 }

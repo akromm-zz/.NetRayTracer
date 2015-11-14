@@ -106,28 +106,15 @@ namespace NetRayTracer
         /// </summary>
         /// <param name="closestPosition">The position to get the color at</param>
         /// <returns>The color at the given position</returns>
-        internal Color GetColor(Vector3 closestPosition)
+        internal Vector4 GetColor(Vector3 closestPosition)
         {
-            Color c = Color.White;
+            Vector4 c = new Vector4(1,1,1,1);
 
             if(Material != null)
             {
                 // convert to barycentric coordinates for the triangle
-                Vector3 p0p2 = P0.Position - P2.Position;
-                Vector3 p1p2 = P1.Position - P2.Position;
-                Vector3 p1p0 = P1.Position - P0.Position;
-                Vector3 xp0 = closestPosition - P0.Position;
-                Vector3 xp1 = closestPosition - P1.Position;
-                Vector3 xp2 = closestPosition - P2.Position;
-
-                // calculate the weight of the contribution of each vertex to the cooridnates
-                float weight0 = Vector3.Cross(p1p2, xp1).Magnitude / _area;
-                float weight1 = Vector3.Cross(p0p2, xp1).Magnitude / _area;
-                float weight2 = Vector3.Cross(p1p0, xp1).Magnitude / _area;
-
-                // calculate the interpolated coordinate
-                float tu = P0.TexCoord.X * weight0 + P1.TexCoord.X * weight1 + P2.TexCoord.X * weight2;
-                float tv = P0.TexCoord.Y * weight0 + P1.TexCoord.Y * weight1 + P2.TexCoord.Y * weight2;
+                float tu, tv;
+                GetTextureCoordinates(closestPosition, out tu, out tv);
 
                 // If the texture coordinate is > 1.0f or < 1.0f then wrap it
                 tu %= 1.0f;
@@ -135,10 +122,63 @@ namespace NetRayTracer
 
                 // TODO: Get the color contributions from all the different material properties
                 Bitmap diffuse = Material.DiffuseMap;
-                c = diffuse.GetPixel((int)(tu * diffuse.Width), (int)(tv * diffuse.Height));
+                Color tc = diffuse.GetPixel((int)(tu * diffuse.Width), (int)(tv * diffuse.Height));
+                c.X = tc.R / 255f;
+                c.Y = tc.G / 255f;
+                c.Z = tc.B / 255f;
+                c.W = tc.A / 255f;
             }
 
             return c;
+        }
+
+        /// <summary>
+        /// Gets the specular coefficient at the given point
+        /// </summary>
+        /// <param name="pos">The position to get the specular coefficient</param>
+        /// <returns>The specular coefficient</returns>
+        internal float GetSpecularCoefficient(Vector3 pos)
+        {
+            if (Material != null)
+            {
+                if (Material.SpecularCoefficientMap != null)
+                {
+                    float tu, tv;
+                    GetTextureCoordinates(pos, out tu, out tv);
+                    return Material.SpecularCoefficientMap.GetPixel(
+                        (int)(tu * Material.SpecularCoefficientMap.Width),
+                        (int)(tv * Material.SpecularCoefficientMap.Height)).R / 255f;
+                }
+
+                return Material.SpecularCoefficient;
+            }
+
+            return 1;
+        }
+
+        /// <summary>
+        /// Gets the texture coordianates of a triange at a given point
+        /// </summary>
+        /// <param name="closestPosition">the position at which to get the texture coordinates</param>
+        /// <param name="tu">The texture coordinate u</param>
+        /// <param name="tv">The texture coordinate v</param>
+        private void GetTextureCoordinates(Vector3 closestPosition, out float tu, out float tv)
+        {
+            Vector3 p0p2 = P0.Position - P2.Position;
+            Vector3 p1p2 = P1.Position - P2.Position;
+            Vector3 p1p0 = P1.Position - P0.Position;
+            Vector3 xp0 = closestPosition - P0.Position;
+            Vector3 xp1 = closestPosition - P1.Position;
+            Vector3 xp2 = closestPosition - P2.Position;
+
+            // calculate the weight of the contribution of each vertex to the cooridnates
+            float weight0 = Vector3.Cross(p1p2, xp1).Magnitude / _area;
+            float weight1 = Vector3.Cross(p0p2, xp1).Magnitude / _area;
+            float weight2 = Vector3.Cross(p1p0, xp1).Magnitude / _area;
+
+            // calculate the interpolated coordinate
+            tu = P0.TexCoord.X * weight0 + P1.TexCoord.X * weight1 + P2.TexCoord.X * weight2;
+            tv = P0.TexCoord.Y * weight0 + P1.TexCoord.Y * weight1 + P2.TexCoord.Y * weight2;
         }
     }
 }

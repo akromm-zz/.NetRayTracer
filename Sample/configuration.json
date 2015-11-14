@@ -3,12 +3,12 @@
   "jitterRays": 1,
   "shadowRays": 1,
   "maxRayDepth": 1,
-  "objFile": "..\\..\\..\\Sample\\cube.obj",
-  "outputWidth": 100,
-  "outputHeight": 100,
+  "objFile": "..\\..\\..\\Sample\\al.obj",
+  "outputWidth": 400,
+  "outputHeight": 400,
   "viewportData": {
     "position": {
-      "x": 10,
+      "x": 20,
       "y": 0,
       "z": 10,
     },
@@ -23,10 +23,35 @@
       "z": 0,
     },
     "fieldOfView": 60,
-    "width": 4,
-    "height": 4,
+    "width": 10,
+    "height": 10,
   },
-	"lights": [
-	
-	]
+  "lights": [
+    {
+      "diffuseColor": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+        "w": 1,
+      },
+      "specularColor": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1,
+      },
+      "ambientColor": {
+        "x": 0,
+        "y": 0,
+        "z": 0.2,
+        "w": 1,
+      },
+      "location": {
+        "x": 0,
+        "y": 40,
+        "z": 40,
+      },
+      "radius": 1
+    }
+  ]
 }
